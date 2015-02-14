@@ -1,9 +1,4 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -11,8 +6,8 @@ output:
 Data set from the study is in working directory as zip file, the data is unzipped and loaded into R. All libraries needed along the file are included.
 No preliminary processing of the data is conducted due to the fact that treatment of  missing values changes along the study.
 
-```{r loadingData}
 
+```r
 # Including all required libraries
 library(stats)
 library(base)
@@ -20,7 +15,13 @@ library(ggplot2)
 
 # Set language to english to avoid location ploblems in weekdays patterns 
 Sys.setlocale("LC_TIME", "English")
+```
 
+```
+## [1] "English_United States.1252"
+```
+
+```r
 # Loading original data into data frame
 unzip("activity.zip")
 activity <- read.csv("activity.csv")
@@ -31,8 +32,8 @@ activity <- read.csv("activity.csv")
 Original data is aggregated by date in order to computed total number of steps
 per day. Missing values are removed. An Histogram is generated. Values for mean and median number of steps are computed. 
 
-```{r dailyValues}
 
+```r
 # Generating the per day data set
 activityDays <- aggregate(steps ~ date, data = activity, sum )
 meanDays <- mean(activityDays$steps, na.rm = TRUE)
@@ -43,10 +44,11 @@ hist(activityDays$steps,
       breaks = 12,
       main = "Histogram of total steps per day",
       xlab = "")   
-
 ```
 
-In this case we have a mean of `r format(meanDays, nsmall = 0)` steps and a median of `r format(medianDays, nsmall = 0)` steps.  
+![](PA1_template_files/figure-html/dailyValues-1.png) 
+
+In this case we have a mean of 10766.19 steps and a median of 10765 steps.  
 Histogram has a bell shape, resembling a normal distribution. Points in the right tail could corrspont to people that did so kind of sport at sampling day. No detailed information about this fact is available.
 
 ## What is the average daily activity pattern?
@@ -54,8 +56,8 @@ Histogram has a bell shape, resembling a normal distribution. Points in the righ
 Now data is aggregated based on time intervals in order to get a daily pattern.
 Missing values are ignored. A line plot is generated.
 
-```{r averageDailyValues}
 
+```r
 # Generating the daily data set
 dailyActivity <- aggregate(steps ~ interval, data = activity, FUN = "mean")
 
@@ -73,26 +75,29 @@ with(dailyActivity,{
             xlab = "Time",
             ylab = "Average number of steps")
       })
-      
+```
+
+![](PA1_template_files/figure-html/averageDailyValues-1.png) 
+
+```r
 # Computing which time interval contains maximum number of steps
 maxInterval <- dailyActivity$time[which.max(dailyActivity$steps)]
 maxSteps <- dailyActivity$steps[which.max(dailyActivity$steps)]
-
 ```
 
 Maximum number of steps happens in the 5 minutes time interval starting at
-`r format(maxInterval,"%H:%M")`.
-The total number of steps is `r as.integer(maxSteps)`
+08:35.
+The total number of steps is 206
 The plot has a reasonable pattern, peaks happen at times consistent with activity as going to work,  for lunch and returning home mainly.
 
 ## Imputing missing values
 
-The problem of missing values, ignored up to this point, is addressed. The data set contains `r sum( is.na(activity$steps) )` missing values. It is about 13% of the total number of measurements. Missing values are replace by mean value of their corresponding time interval.  
+The problem of missing values, ignored up to this point, is addressed. The data set contains 2304 missing values. It is about 13% of the total number of measurements. Missing values are replace by mean value of their corresponding time interval.  
 A new histogram is generated, it shows that the shape of the distribution has 
 not change, however the dispersion has been reduced as all days that were dismissed fall in the interval that contains the mean value.
 
-```{r missingValues}
 
+```r
 # Creating a new data set to replace missing values
 filledDataset <- activity
 
@@ -115,18 +120,19 @@ hist(activityDays$steps,
      breaks = 12,
      main = "Histogram of total steps per day",
      xlab = "")   
-
 ```
 
-Mean and median for this new data set are computed. In this case we have a mean of `r format(meanDays, nsmall = 0)` steps and a median of `r format(medianDays, nsmall = 0)` steps.   
+![](PA1_template_files/figure-html/missingValues-1.png) 
+
+Mean and median for this new data set are computed. In this case we have a mean of 10766.19 steps and a median of 10766.19 steps.   
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 In order to answer this question, a new factor variable "daytype" with levels "Weekday" and "Weekend" is included in the data set. Data is now aggregated 
 based on both time intervals and daytype variables.
 
-```{r weekdaySubsetting}
 
+```r
 # Generating time variable
 filledDataset$time <- format(filledDataset$interval, digits = 4)
 filledDataset$time <- gsub(" ", "0", filledDataset$time )
@@ -155,8 +161,9 @@ ggplot(dailySets, aes( interval , steps)) +
       labs(x = "Time") +
       labs(y = "Number of steps ") +
       labs(title = "Daily patterns comparison Weekday vs Weekend" )
-      
 ```
+
+![](PA1_template_files/figure-html/weekdaySubsetting-1.png) 
 
 It is clear from the panel plot that there two different patterns.  
 In weekdays steps are concentrated at times that clearly correspond to breakfast time, starting to work,going for lunch, going home and dinnertime. This shows a defined scheduled consistent with working days.
